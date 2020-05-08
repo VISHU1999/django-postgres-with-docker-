@@ -1,0 +1,43 @@
+version: "3.9"
+
+volumes:
+    database_data:
+
+services:
+  web:
+    build: .
+    image: django-web
+    container_name: Django-app
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: curl --fail -s http://localhost:8000/api/tutorials || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+    # deploy:
+    #   restart_policy:
+    #     condition: any
+    #     delay: 5s
+    #     # max_attempts: 3
+    #     window: 120s  
+    ports:
+      - "8000:8000"
+    links:
+      - db  
+    depends_on:
+      - db
+    stop_grace_period: 1m
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password  
+  db:
+    image: postgres
+    container_name: db_app
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    stop_grace_period: 1m  
+    volumes:
+    - database_data:/var/lib/postgresql
