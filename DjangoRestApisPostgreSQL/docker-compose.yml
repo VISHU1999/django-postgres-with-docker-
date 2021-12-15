@@ -1,7 +1,5 @@
 version: "3.9"
 
-volumes:
-    database_data:
 
 services:
   web:
@@ -14,6 +12,8 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
+    volumes:
+      - .:/app #this line responsible for hot reload 
     # deploy:
     #   restart_policy:
     #     condition: any
@@ -30,7 +30,8 @@ services:
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password  
+      POSTGRES_PASSWORD: password
+
   db:
     image: postgres
     container_name: db_app
@@ -40,4 +41,4 @@ services:
       POSTGRES_PASSWORD: password
     stop_grace_period: 1m  
     volumes:
-    - database_data:/var/lib/postgresql
+    - .:/app
